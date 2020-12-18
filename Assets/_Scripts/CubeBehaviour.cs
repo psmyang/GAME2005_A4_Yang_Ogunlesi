@@ -1,21 +1,71 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Color = UnityEngine.Color;
+
+[System.Serializable]
+public class Contact : IEquatable<Contact>
+{
+    public int mass;
+    public int friction;
+    public CubeBehaviour cube;
+    public Vector3 face;
+    public float penetration;
+
+    public Contact(CubeBehaviour cube)
+    {
+        this.cube = cube;
+        face = Vector3.zero;
+        penetration = 0.0f;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj == null) return false;
+        Contact objAsContact = obj as Contact;
+        if (objAsContact == null) return false;
+        else return Equals(objAsContact);
+    }
+
+    public override int GetHashCode()
+    {
+        return this.cube.gameObject.GetInstanceID();
+    }
+
+    public bool Equals(Contact other)
+    {
+        if (other == null) return false;
+
+        return (
+            (this.cube.gameObject.name.Equals(other.cube.gameObject.name)) &&
+            (this.face == other.face) &&
+            (Mathf.Approximately(this.penetration, other.penetration))
+            );
+    }
+
+    public override string ToString()
+    {
+        return "Cube Name: " + cube.gameObject.name + " face: " + face.ToString() + " penetration: " + penetration;
+    }
+}
 
 
 [System.Serializable]
 public class CubeBehaviour : MonoBehaviour
 {
+    [Header("Cube Attributes")]
     public Vector3 size;
     public Vector3 max;
     public Vector3 min;
     public bool isColliding;
     public bool debug;
-    public List<CubeBehaviour> contacts;
+    public List<Contact> contacts;
 
     private MeshFilter meshFilter;
-    private Bounds bounds;
+    public Bounds bounds;
+    public bool isGrounded;
+
 
     // Start is called before the first frame update
     void Start()
@@ -33,11 +83,7 @@ public class CubeBehaviour : MonoBehaviour
     {
         max = Vector3.Scale(bounds.max, transform.localScale) + transform.position;
         min = Vector3.Scale(bounds.min, transform.localScale) + transform.position;
-    }
 
-    void FixedUpdate()
-    {
-        // physics related calculations
     }
 
     private void OnDrawGizmos()
@@ -49,4 +95,5 @@ public class CubeBehaviour : MonoBehaviour
             Gizmos.DrawWireCube(transform.position, Vector3.Scale(new Vector3(1.0f, 1.0f, 1.0f), transform.localScale));
         }
     }
+
 }

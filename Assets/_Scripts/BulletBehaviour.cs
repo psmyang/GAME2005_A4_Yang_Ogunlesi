@@ -8,22 +8,20 @@ public class BulletBehaviour : MonoBehaviour
     public float speed;
     public Vector3 direction;
     public float range;
+    public float radius;
+    public bool debug;
+    public bool isColliding;
+    public Vector3 collisionNormal;
+    public float penetration;
+
+    public BulletManager bulletManager;
 
     // Start is called before the first frame update
     void Start()
     {
-        //CollisionManager.Instance.Spheres.Add(this);
-
-        //forwardDirection = GameObject.FindWithTag("Player").transform.forward;
-        //forwardVelocity = 12;
-        //rigidBody.velocity = new Vector3(0, 0, 0);
-        //rigidBody.acceleration = new Vector3(0, -0.5f, 0);
-        //rigidBody.nass = 1;
-        //rigidBody.restitution = 1;
-        //rigidBody.friction = 0.5f;
-        //rigidBody.anchored = false;
-
-        //rigidBody.velocity = forwardDirection * forwardVelocity;
+        isColliding = false;
+        radius = Mathf.Max(transform.localScale.x, transform.localScale.y, transform.localScale.z) * 0.5f;
+        bulletManager = FindObjectOfType<BulletManager>();
     }
 
     // Update is called once per frame
@@ -42,7 +40,17 @@ public class BulletBehaviour : MonoBehaviour
     {
         if (Vector3.Distance(transform.position, Vector3.zero) > range)
         {
-            Destroy(gameObject);
+            bulletManager.ReturnBullet(this.gameObject);
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (debug)
+        {
+            Gizmos.color = Color.magenta;
+
+            Gizmos.DrawWireSphere(transform.position, radius);
         }
     }
 }
